@@ -19,12 +19,12 @@ class Game:
         self.grid = Grid(250, circuit_file)
         self.player = Player((0.5, 0.5))
         
-    def update(self, dvel, dang):
+    def update(self, acc, steer):
         """
         Tick for the game instance
         """
         # Update the player position
-        self.player.update(self.dt, dvel, dang)
+        self.player.update(self.dt, acc, steer)
             
         # Check for circuit collisions
         forward = np.array([np.cos(self.player.rot), np.sin(self.player.rot)])
