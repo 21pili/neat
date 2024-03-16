@@ -21,6 +21,10 @@ class Player:
         # Friction
         self.friction = 10.0
         
+        # Player related
+        self.distance = 0.0
+        self.time = 0.0
+        
         # Maximum values
         self.max_vel = 0.17
         self.max_acc = 1.2
@@ -68,3 +72,25 @@ class Player:
         self.pos += np.array([self.vel[0] * np.cos(self.rot) * dt, self.vel[0] * np.sin(self.rot) * dt])
         self.rot += angular_vel * dt
         
+        # Update the distance
+        self.distance += self.vel[0] * dt
+        self.time += dt
+        
+    def get_distance(self):
+        """
+        Get the current distance traveled by the player
+        """
+        return self.distance
+    
+    def get_time(self):
+        """
+        Get the current time elapsed
+        """
+        return self.time
+    
+    def get_inputs(self):
+        """
+        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
+        """
+        # TODO: Add ray casting to get the distance to the walls
+        return (self.vel[0], self.vel[1], self.acc, self.steer, self.rot)

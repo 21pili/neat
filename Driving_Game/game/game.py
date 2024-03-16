@@ -22,6 +22,10 @@ class Game:
     def update(self, acc, steer):
         """
         Tick for the game instance
+        
+        Args:
+            acc: Acceleration to apply
+            steer: Steering angle to apply
         """
         # Update the player position
         self.player.update(self.dt, acc, steer)
