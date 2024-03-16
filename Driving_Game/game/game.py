@@ -89,11 +89,14 @@ class Game:
             return True
         return False
     
-    def get_inputs(self):
+    def get_inputs(self, ray_count):
         """
-        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
+        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot, ray_distance_1, ..., ray_distance_n)
+        
+        Args:
+            ray_count: number of rays to cast (uniformly distributed in the player's field of view)
         """
-        return self.player.get_inputs()
+        return self.player.get_inputs(self.grid, ray_count)
     
     def get_fitness_parameters(self):
         """

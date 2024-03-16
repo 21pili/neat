@@ -88,7 +88,7 @@ class Player:
         """
         return self.time
     
-    def get_inputs(self):
+    def get_inputs(self, grid, ray_count):
         """
         Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
         """
