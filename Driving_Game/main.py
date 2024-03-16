@@ -1,10 +1,15 @@
 import pygame
 import numpy as np
 from game.game import Game, GameGraphics
+from game.grid import Grid
 
 # # Run the game with graphics and keyboard inputs
 # if __name__ == "__main__":
-#     game = GameGraphics('circuit.png')
+#     # Create the game
+#     grid = Grid(250, 'circuit.png')
+#     game = GameGraphics(grid)
+
+#     # Run the game
 #     while not game.game_over:
 #         game.update()
     
@@ -15,35 +20,46 @@ from game.game import Game, GameGraphics
 #     pygame.quit()
 
 
-# Run the game with the NEAT algorithm
+# Run the game with the NEAT algorithm for one car
 if __name__ == "__main__":
-    # Create the game
-    game = Game('circuit.png', dt=0.01)
-    MAX_TIME = 100.0 # seconds
+    # Load the circuit
+    grid = Grid(250, 'circuit.png')
     
-    # Create the NEAT network
-    # TODO:
+    # Algorithm parameters
+    GENERATIONS = 10 # Total number of generations
+    PLAYER_COUNT = 10 # Number of players per generation
+    PLAYER_MAX_TIME = 100.0 # Maximum time for a player to run
     
-    # Run the game
-    elapsed_time = 0.0
-    while not game.game_over and elapsed_time < MAX_TIME:
-        # Get the inputs to the neat network
-        inputs = game.player.get_inputs()
+    # Run algorithm
+    for gen in range(GENERATIONS):
+        print(f"Simulating generation {gen + 1}/{GENERATIONS}")
         
-        # Predict the next action using neat
-        action = (0.1, 0.0) # TODO:
+        # Create the players for this generation # TODO:
+        players = [Game(grid) for _ in range(PLAYER_COUNT)]
         
-        # Execute the action
-        game.update(action[0], action[1])
+        # Run the game for each player
+        for game in players:
+            elapsed_time = 0.0
+            while not game.game_over and elapsed_time < PLAYER_MAX_TIME:
+                # Get the inputs to the neat network
+                inputs = game.player.get_inputs()
+                
+                # Predict the next action using neat
+                action = (0.1, 0.0) # TODO:
+                
+                # Execute the action
+                game.update(action[0], action[1])
+                
+                # Update the elapsed time
+                elapsed_time += game.dt
+                
+        # Compute rewards of the players
+        rewards = [0.0 for _ in range(PLAYER_COUNT)]
+        for i, game in enumerate(players):
+            dist = game.player.get_distance()
+            time = game.player.get_time()
+            rewards[i] = 0.0 # TODO:
         
-        # Compute reward
-        dist = game.player.get_distance()
-        time = game.player.get_time()
-        reward = 0.0 # TODO:
-        
-        # Update the neat network
+        # Mutations, speciation, crossover, etc.
         # TODO:
-        
-        # Update the elapsed time
-        elapsed_time += game.dt
     

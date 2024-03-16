@@ -3,6 +3,12 @@ from PIL import Image
 
 class Grid:
     def __init__(self, grid_size, circuit_file):
+        """
+        Initialize the grid with a given size and circuit file
+        Args:
+            grid_size: Number of cells in the grid
+            circuit_file: File containing the circuit (image file)
+        """
         self.GRID_SIZE = grid_size
         self.grid = np.zeros((grid_size, grid_size)) # 0: empty, 1: wall
         

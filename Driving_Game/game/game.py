@@ -7,16 +7,20 @@ from game.grid import Grid
 from game.player import Player
 
 class Game:
-    def __init__(self, circuit_file, dt):
+    def __init__(self, grid, dt=0.01):
         """
         Initialize a game instance without graphics
+        
+        Args:
+            grid: the grid instance
+            dt: time step
         """
         # Game current status
         self.game_over = False
         self.dt = dt
         
         # Initialize game state
-        self.grid = Grid(250, circuit_file)
+        self.grid = grid
         self.player = Player((0.5, 0.5))
         
     def update(self, acc, steer):
@@ -87,12 +91,15 @@ class Game:
             
 
 class GameGraphics(Game):
-    def __init__(self, circuit_file):
+    def __init__(self, grid):
         """
         Initialize a game instance with graphics
+        
+        Args:
+            grid: the grid instance
         """
         # Initialize parent class
-        super().__init__(circuit_file, 0)
+        super().__init__(grid, 0)
         
         # Render logic
         pygame.init()
