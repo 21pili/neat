@@ -55,13 +55,13 @@ class Game:
             for y in range(min_y, max_y + 1):
                 if x >= 0 and x < self.grid.grid.shape[0] and y >= 0 and y < self.grid.grid.shape[1] and self.grid.grid[x, y] == 1:
                     ry = y / self.grid.GRID_SIZE
-                    # if Game.line_rect_collision(p1[0], p1[1], p2[0], p2[1], rx, ry, rw, rh) or \
-                    #    Game.line_rect_collision(p2[0], p2[1], p3[0], p3[1], rx, ry, rw, rh) or \
-                    #    Game.line_rect_collision(p3[0], p3[1], p4[0], p4[1], rx, ry, rw, rh) or \
-                    #    Game.line_rect_collision(p4[0], p4[1], p1[0], p1[1], rx, ry, rw, rh):
-                    #     self.game_over = True
-                    #     self.grid.red_cells.append((x, y))
-                    #     break
+                    if Game.line_rect_collision(p1[0], p1[1], p2[0], p2[1], rx, ry, rw, rh) or \
+                       Game.line_rect_collision(p2[0], p2[1], p3[0], p3[1], rx, ry, rw, rh) or \
+                       Game.line_rect_collision(p3[0], p3[1], p4[0], p4[1], rx, ry, rw, rh) or \
+                       Game.line_rect_collision(p4[0], p4[1], p1[0], p1[1], rx, ry, rw, rh):
+                        self.game_over = True
+                        self.grid.red_cells.append((x, y))
+                        break
         
         
     
