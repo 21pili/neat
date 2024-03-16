@@ -88,6 +88,18 @@ class Game:
         if left or right or top or bottom:
             return True
         return False
+    
+    def get_inputs(self):
+        """
+        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
+        """
+        return self.player.get_inputs()
+    
+    def get_fitness_parameters(self):
+        """
+        Get the fitness parameters for the NEAT algorithm (distance, time)
+        """
+        return self.player.get_distance(), self.player.get_time()
             
 
 class GameGraphics(Game):

@@ -42,7 +42,7 @@ if __name__ == "__main__":
             elapsed_time = 0.0
             while not game.game_over and elapsed_time < PLAYER_MAX_TIME:
                 # Get the inputs to the neat network
-                inputs = game.player.get_inputs()
+                inputs = game.get_inputs()
                 
                 # Predict the next action using neat
                 action = (0.1, 0.0) # TODO:
@@ -53,12 +53,11 @@ if __name__ == "__main__":
                 # Update the elapsed time
                 elapsed_time += game.dt
                 
-        # Compute rewards of the players
-        rewards = [0.0 for _ in range(PLAYER_COUNT)]
+        # Compute fitness for the players
+        fitness = [0.0 for _ in range(PLAYER_COUNT)]
         for i, game in enumerate(players):
-            dist = game.player.get_distance()
-            time = game.player.get_time()
-            rewards[i] = 0.0 # TODO:
+            fitness_params = game.get_fitness_parameters()
+            fitness[i] = 0.0 # TODO:
         
         # Mutations, speciation, crossover, etc.
         # TODO:
