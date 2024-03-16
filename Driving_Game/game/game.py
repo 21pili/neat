@@ -53,15 +53,15 @@ class Game:
         for x in range(min_x, max_x + 1):
             rx = x / self.grid.GRID_SIZE
             for y in range(min_y, max_y + 1):
-                if self.grid.grid[x, y] == 1:
+                if x >= 0 and x < self.grid.grid.shape[0] and y >= 0 and y < self.grid.grid.shape[1] and self.grid.grid[x, y] == 1:
                     ry = y / self.grid.GRID_SIZE
-                    if Game.line_rect_collision(p1[0], p1[1], p2[0], p2[1], rx, ry, rw, rh) or \
-                       Game.line_rect_collision(p2[0], p2[1], p3[0], p3[1], rx, ry, rw, rh) or \
-                       Game.line_rect_collision(p3[0], p3[1], p4[0], p4[1], rx, ry, rw, rh) or \
-                       Game.line_rect_collision(p4[0], p4[1], p1[0], p1[1], rx, ry, rw, rh):
-                        self.game_over = True
-                        self.grid.red_cells.append((x, y))
-                        break
+                    # if Game.line_rect_collision(p1[0], p1[1], p2[0], p2[1], rx, ry, rw, rh) or \
+                    #    Game.line_rect_collision(p2[0], p2[1], p3[0], p3[1], rx, ry, rw, rh) or \
+                    #    Game.line_rect_collision(p3[0], p3[1], p4[0], p4[1], rx, ry, rw, rh) or \
+                    #    Game.line_rect_collision(p4[0], p4[1], p1[0], p1[1], rx, ry, rw, rh):
+                    #     self.game_over = True
+                    #     self.grid.red_cells.append((x, y))
+                    #     break
         
         
     
@@ -101,17 +101,15 @@ class GameGraphics(Game):
         # Initialize components
         self.camera = PlayerCamera(self.grid, self.player)
         self.display = Display()
-        self.dvel = np.array([0.0, 0.0])
-        self.dang = 0.0
+        self.acc = 0.0
+        self.steer = 0.0
         
     def update(self):
         """
         Tick for the game instance
         """
         # Update the game state based on the player inputs
-        super().update(self.dvel, self.dang)
-        self.dvel = np.array([0.0, 0.0])
-        self.dang = 0.0
+        super().update(self.acc, self.steer)
         
         # Tick for the display loop
         self.events()
@@ -138,20 +136,23 @@ class GameGraphics(Game):
                 self.camera = MapCamera(self.grid, self.player)
             self.last_camera_change = pygame.time.get_ticks()
             
-        # Handle keyboard inputs for the player
-        MOVE_SPEED = 0.1
-        TURN_SPEED = 3.0
+        # Handle keyboard inputs for acceleration
         time_now = time.time()
         dt_input = time_now - self.last_input
-        forward = np.array([np.cos(self.player.rot), np.sin(self.player.rot)])
         if keys[pygame.K_z]:
-            self.dvel += forward * MOVE_SPEED * dt_input
-        if keys[pygame.K_s]:
-            self.dvel -= forward * MOVE_SPEED * dt_input
-        if keys[pygame.K_q]:
-            self.dang -= TURN_SPEED * dt_input
+            self.acc += 1.0 * dt_input
+        elif keys[pygame.K_s]:
+            self.acc = -self.player.brake_acc * dt_input
+        else:
+            self.acc = 0.0
+        
+        # Handle keyboard inputs for steering
         if keys[pygame.K_d]:
-            self.dang += TURN_SPEED * dt_input
+            self.steer += 1.0 * dt_input
+        elif keys[pygame.K_q]:
+            self.steer -= 1.0 * dt_input
+        else:
+            self.steer = 0.0
         self.last_input = time_now
                 
         # Handle keyboard inputs for the camera
@@ -171,10 +172,16 @@ class GameGraphics(Game):
         self.display.clear()
         camera_name = "Map" if isinstance(self.camera, MapCamera) else "Player"
         self.display.display(self.screen, "LEFT", format("FPS: {:.2f}".format(self.clock.get_fps())))
-        self.display.display(self.screen, "LEFT", format("Player: ({:.2f}, {:.2f})".format(*self.player.pos)))
+        self.display.display(self.screen, "LEFT", format("Player infos:".format(*self.player.pos)))
+        self.display.display(self.screen, "LEFT", format(" - Position: ({:.2f}, {:.2f})".format(*self.player.pos)))
+        self.display.display(self.screen, "LEFT", format(" - Velocity: ({:.2f}, {:.2f})".format(*self.player.vel)))
+        self.display.display(self.screen, "LEFT", format(" - Rotation: {:.2f}".format(self.player.rot)))
+        self.display.display(self.screen, "LEFT", format(" - Acceleration: {:.2f}".format(np.clip(self.acc, -self.player.max_acc, self.player.max_acc))))
+        self.display.display(self.screen, "LEFT", format(" - Steering: {:.2f}".format(np.clip(self.steer, -self.player.max_steer, self.player.max_steer))))
         self.display.display(self.screen, "LEFT", format("Camera: {}".format(camera_name)))
         
-        self.display.display(self.screen, "RIGHT", format("Z/Q/S/D: Control Player"))
+        self.display.display(self.screen, "RIGHT", format("Z/S: Accelerate/Brake"))
+        self.display.display(self.screen, "RIGHT", format("Q/D: Turn Left/Right"))
         self.display.display(self.screen, "RIGHT", format("P/M: Zoom In/Out"))
         self.display.display(self.screen, "RIGHT", format("C: Change Camera"))
         
