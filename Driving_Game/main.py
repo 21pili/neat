@@ -20,7 +20,7 @@ from game.grid import Grid
 #     pygame.quit()
 
 
-# Run the game with the NEAT algorithm for one car
+# Run the game with the NEAT algorithm
 if __name__ == "__main__":
     # Load the circuit
     grid = Grid(250, 'circuit.png')
