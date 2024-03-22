@@ -167,8 +167,8 @@ class PlayerCamera:
                     break
                 distance += self.player.wall_dx
                 ray_pos = self.player.pos + distance * ray_dir
-                (grid_x, grid_y) = (int(ray_pos[0] * self.grid.grid.shape[0]), int(ray_pos[1] * self.grid.grid.shape[1]))
-                if self.grid.grid[grid_x, grid_y] == 1:
+                (grid_x, grid_y) = (np.round(ray_pos[0] * self.grid.grid.shape[0]), np.round(ray_pos[1] * self.grid.grid.shape[1]))
+                if self.grid.grid[int(grid_x) + 2, int(grid_y) + 2] == 1:
                     color = "green"
                     break
                 

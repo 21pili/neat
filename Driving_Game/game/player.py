@@ -115,8 +115,8 @@ class Player:
                     break
                 distance += self.wall_dx
                 ray_pos = self.pos + distance * ray_dir
-                (grid_x, grid_y) = (int(ray_pos[0] * grid.grid.shape[0]), int(ray_pos[1] * grid.grid.shape[1]))
-                if grid.grid[grid_x, grid_y] == 1:
+                (grid_x, grid_y) = (np.ceil(ray_pos[0] * grid.grid.shape[0]), np.ceil(ray_pos[1] * grid.grid.shape[1]))
+                if grid.grid[int(grid_x), int(grid_y)] == 1:
                     break
             distances[i] = distance
         
