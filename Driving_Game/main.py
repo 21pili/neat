@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # Simulation parameters
     GENERATIONS = 10        # Total number of generations
     PLAYER_MAX_TIME = 100.0 # Maximum lifetime of a player simulation
-    PLAYER_RAY_COUNT = 5    # Number of rays to cast from the player
+    PLAYER_RAY_COUNT = 10   # Number of rays to cast from the player
     
     # Load the circuit
     grid = Grid(250, 'circuit.png')

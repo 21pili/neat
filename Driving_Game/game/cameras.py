@@ -145,6 +145,38 @@ class PlayerCamera:
         grid_max = PlayerCamera._xy_to_screen(view_size, (1, 1), view_range, self.player.pos)
         pygame.draw.rect(screen, "red", (grid_min, (grid_max[0] - grid_min[0] + 2, grid_max[1] - grid_min[1] + 2)), 1)
         
+        # Draw the player field of view
+        player_rect = pygame.Rect(
+            PlayerCamera._xy_to_screen(view_size, (self.player.pos[0] - self.player.view_distance, self.player.pos[1] - self.player.view_distance), view_range, self.player.pos),
+            PlayerCamera._xy_to_screen(view_size, (2 * self.player.view_distance, 2 * self.player.view_distance), view_range, self.player.pos, absolute=True)
+        )
+        pygame.draw.arc(screen, "red", player_rect, -self.player.rot - self.player.fov / 2, -self.player.rot + self.player.fov / 2, 2)
+        
+        # Draw 10 rays
+        ray_count = 10
+        for i in range(ray_count):
+            # Compute ray direction
+            angle = self.player.rot + (i - ray_count // 2) * self.player.fov / ray_count
+            ray_dir = np.array([np.cos(angle), np.sin(angle)])
+            
+            # Compute the distance to the nearest wall
+            distance = 0
+            color = "red"
+            while True:
+                if distance + self.player.wall_dx > self.player.view_distance:
+                    break
+                distance += self.player.wall_dx
+                ray_pos = self.player.pos + distance * ray_dir
+                (grid_x, grid_y) = (int(ray_pos[0] * self.grid.grid.shape[0]), int(ray_pos[1] * self.grid.grid.shape[1]))
+                if self.grid.grid[grid_x, grid_y] == 1:
+                    color = "green"
+                    break
+                
+            # Draw the ray
+            ray_pos = PlayerCamera._xy_to_screen(view_size, ray_pos, view_range, self.player.pos)
+            pygame.draw.line(screen, color, PlayerCamera._xy_to_screen(view_size, self.player.pos, view_range, self.player.pos), ray_pos)
+            
+        
         # Draw the player at center
         forward = np.array([np.cos(self.player.rot), np.sin(self.player.rot)])
         left = np.array([np.cos(self.player.rot + np.pi / 2), np.sin(self.player.rot + np.pi / 2)])
@@ -156,7 +188,6 @@ class PlayerCamera:
             (player_pos[0] - forward[0] * p_h / 2 - left[0] * p_w / 2, player_pos[1] - forward[1] * p_h / 2 - left[1] * p_w / 2),
             (player_pos[0] - forward[0] * p_h / 2 + left[0] * p_w / 2, player_pos[1] - forward[1] * p_h / 2 + left[1] * p_w / 2)
         ])
-        pygame.draw.line(screen, "black", player_pos, (player_pos[0] + forward[0] * p_h / 2, player_pos[1] + forward[1] * p_h / 2), 4)
         
     def input(self, dt):
         """

@@ -18,6 +18,11 @@ class Player:
         self.steer_mult = 0.8
         self.brake_acc = 55.0
         
+        # Vision related
+        self.fov = np.deg2rad(45)
+        self.view_distance = 0.1
+        self.wall_dx = 0.01
+        
         # Friction
         self.friction = 10.0
         
@@ -91,6 +96,29 @@ class Player:
     def get_inputs(self, grid, ray_count):
         """
         Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
+        
+        Args:
+            grid: the grid with the map
+            ray_count: number of rays for the player's field of view
         """
-        # TODO: Add ray casting to get the distance to the walls
-        return (self.vel[0], self.vel[1], self.acc, self.steer, self.rot)
+        # Compute rays distance
+        distances = np.zeros(ray_count)
+        for i in range(ray_count):
+            # Compute ray direction
+            angle = self.rot + (i - ray_count // 2) * self.fov / ray_count
+            ray_dir = np.array([np.cos(angle), np.sin(angle)])
+            
+            # Compute the distance to the nearest wall
+            distance = 0
+            while True:
+                if distance + self.wall_dx > self.view_distance:
+                    break
+                distance += self.wall_dx
+                ray_pos = self.pos + distance * ray_dir
+                (grid_x, grid_y) = (int(ray_pos[0] * grid.grid.shape[0]), int(ray_pos[1] * grid.grid.shape[1]))
+                if grid.grid[grid_x, grid_y] == 1:
+                    break
+            distances[i] = distance
+        
+        # Return the inputs
+        return (self.vel[0], self.vel[1], self.acc, self.steer, self.rot, *distances)
