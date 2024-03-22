@@ -41,17 +41,12 @@ class NeatAlgorithm:
         self.population.run(fitness_function, generations)
         
         
-    def predict(self, genome, inputs):
+    def create_network(self, genome):
         """
-        Predict the output of a given genome using the inputs
+        Create a feed-forward network from the given genome
         
         Args:
-            genome: genome to predict the output
-            inputs: input values to feed the network
+            genome: genome to create the network
         """
-        # Create a feed-forward network
-        net = neat.nn.FeedForwardNetwork.create(genome, self.config)
-        
-        # Predict the output
-        return net.activate(inputs)
+        return neat.nn.FeedForwardNetwork.create(genome, self.config)
         

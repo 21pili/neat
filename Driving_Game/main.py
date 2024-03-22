@@ -3,6 +3,7 @@ import pygame
 from brain.neat import NeatAlgorithm
 from game.game import Game, GameGraphics
 from game.grid import Grid
+from multiprocessing import Pool
 
 
 def map_outputs(output, dt):
@@ -17,6 +18,35 @@ def map_outputs(output, dt):
     steer = dt * (np.exp(output[2]) - np.exp(output[3])) / (np.exp(output[2]) + np.exp(output[3]))
     return acc, steer
 
+def run_simulation(args):
+    """
+    Run the simulation for a player and return the fitness
+    
+    Args:
+        args: tuple (game, (network, (PLAYER_MAX_TIME, PLAYER_RAY_COUNT)))
+    """
+    # Get the arguments
+    game, (network, (PLAYER_MAX_TIME, PLAYER_RAY_COUNT)) = args
+    
+    # Run the game for each player
+    elapsed_time = 0.0
+    while not game.game_over and elapsed_time < PLAYER_MAX_TIME:
+        # Get the inputs of the current game state
+        inputs = game.get_inputs(PLAYER_RAY_COUNT)
+        
+        # Get the outputs from the neat network
+        outputs = network.activate(inputs)
+        
+        # Execute the action on the game
+        acc, steer = map_outputs(outputs, game.dt)
+        game.update(acc, steer)
+        
+        # Update the elapsed time
+        elapsed_time += game.dt
+        
+    # Compute fitness for the players
+    fitness_params = game.get_fitness_parameters()
+    return fitness_params[0]
 
 def eval_genomes(genomes, current_config):
     """
@@ -29,36 +59,21 @@ def eval_genomes(genomes, current_config):
     neat.config = current_config
     
     # Run each genome
-    print("Evaluating new generation of genomes.")
-    for i, (_, genome) in enumerate(genomes):
-        # Log the current progress
-        print(" -> Current progress : " + str(round(i/len(genomes) * 100)) + "%.", end="\r")
+    with Pool() as pool:
+        # Create the game instances and the networks
+        games = [Game(grid) for _ in range(len(genomes))]
+        neat_networks = [neat.create_network(genome) for _, genome in genomes]
         
-        # Create a new game instance for the current player
-        game = Game(grid)
+        # Evaluate the fitness of each genome
+        args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
+        fitnesses = pool.map(run_simulation, args)
         
-        # Run the game for each player
-        elapsed_time = 0.0
-        while not game.game_over and elapsed_time < PLAYER_MAX_TIME:
-            # Get the inputs of the current game state
-            inputs = game.get_inputs(PLAYER_RAY_COUNT)
-            
-            # Get the outputs from the neat network
-            outputs = neat.predict(genome, inputs)
-            
-            # Execute the action on the game
-            acc, steer = map_outputs(outputs, game.dt)
-            game.update(acc, steer)
-            
-            # Update the elapsed time
-            elapsed_time += game.dt
-            
-        # Compute fitness for the players
-        fitness_params = game.get_fitness_parameters()
-        genome.fitness = fitness_params[0]
+        # Set the fitness of each genome
+        for i, (_, genome) in enumerate(genomes):
+            genome.fitness = fitnesses[i]
         
-    # Mutations, speciation, crossover, etc.
-    # TODO
+        # Mutations, speciation, crossover, etc.
+        # TODO
 
 
 if __name__ == '__main__':
