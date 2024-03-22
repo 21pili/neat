@@ -1,7 +1,6 @@
 import numpy as np
-import pygame
 from brain.neat import NeatAlgorithm
-from game.game import Game, GameGraphics
+from game.game import Game
 from game.grid import Grid
 from multiprocessing import Pool
 
@@ -89,6 +88,9 @@ if __name__ == '__main__':
     grid = Grid(250, 'circuit.png')
 
     if GAME_GRAPHICS:
+        import pygame
+        from game.game_graphics import GameGraphics
+        
         # Create the player
         player = GameGraphics(grid)
         
