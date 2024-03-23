@@ -1,3 +1,4 @@
+import time
 import numpy as np
 from brain.neat import NeatAlgorithm
 from game.game import Game
@@ -74,7 +75,7 @@ def eval_genomes(genomes, current_config):
     # Run each genome
     with Pool() as pool:
         # Create the game instances and the networks
-        games = [Game(grid) for _ in range(len(genomes))]
+        games = [Game(grid, DT) for _ in range(len(genomes))]
         neat_networks = [neat.create_network(genome) for _, genome in genomes]
         # Evaluate the fitness of each genome
         args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
@@ -98,6 +99,7 @@ if __name__ == '__main__':
     GENERATIONS = 10        # Total number of generations
     PLAYER_MAX_TIME = 100.0 # Maximum lifetime of a player simulation
     PLAYER_RAY_COUNT = 10   # Number of rays to cast from the player
+    DT = 0.01               # Time step for the simulation
     
     # Load the circuit
     grid = Grid(250, 'circuit.png')
@@ -109,39 +111,58 @@ if __name__ == '__main__':
         if LOAD_CHECKPOINT:
             # Create and run the NEAT algorithm loading from a checkpoint
             neat = NeatAlgorithm(CONFIG_FILE, CHECKPOINT_FILE)
+            
+            # Create the network from the genome
+            net = neat.create_network(neat.best)
         
-        # Create the game with graphics
-        game = GameGraphics(grid)
-        
-        # Run the game for the player
-        while not game.game_over:
-            # Update the game state
-            game.tick()
+        while True:
+            # Create the game with graphics
+            game = GameGraphics(grid)
             
-            # Handle window events
-            game.events()
-            
-            if not LOAD_CHECKPOINT:
-                # Get the inputs of the current game state
-                acc, steer = game.key_inputs()
-            else:
-                # Get the inputs of the current game state
-                inputs = game.get_inputs(PLAYER_RAY_COUNT)
+            # Run the game for the player
+            frame_time_store = [0.0] * 10
+            frame_time_avg = 1.0
+            while not game.game_over:
+                frame_time = time.time()
                 
-                # Create the network from the genome
-                net = neat.create_network(neat.best)
+                # Update the game state
+                game.tick(DT)
                 
-                # Get the outputs from the neat network
-                outputs = net.activate(inputs)
+                # Handle window events
+                game.events()
                 
-                # Execute the action on the game
-                acc, steer = map_outputs(outputs, game.dt, game.player)
-            
-            # Update the game state
-            game.update(acc, steer)
-            
-            # Display the game
-            game.draw()
+                if not LOAD_CHECKPOINT:
+                    # Get the inputs of the current game state
+                    acc, steer = game.key_inputs()
+                else:
+                    # Compute the iteration count based on the frame time, so that the game runs at DT
+                    it_count = max(int(DT / frame_time_avg), 1) * 5
+                    
+                    # Run the game for the player
+                    for it in range(it_count):
+                        # Get the inputs of the current game state
+                        inputs = game.get_inputs(PLAYER_RAY_COUNT)
+                        
+                        # Get the outputs from the neat network
+                        outputs = net.activate(inputs)
+                        
+                        # Execute the action on the game
+                        acc, steer = map_outputs(outputs, game.dt, game.player)
+                
+                        # Update the game state
+                        game.update(acc, steer)
+                        
+                        # Check if the game is over
+                        if game.game_over:
+                            break
+                
+                # Display the game
+                game.draw()
+                
+                # Update the frame time
+                frame_time_store.pop(0)
+                frame_time_store.append(time.time() - frame_time)
+                frame_time_avg = sum(frame_time_store) / 10
     
         # Quit the window
         pygame.quit()

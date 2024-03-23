@@ -26,6 +26,10 @@ class Game:
             acc: Acceleration to apply
             steer: Steering angle to apply
         """
+        # Store the acc and steer values
+        self.acc = acc
+        self.steer = steer
+        
         # Update the player position
         self.player.update(self.dt, acc, steer)
             

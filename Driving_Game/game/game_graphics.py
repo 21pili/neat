@@ -30,12 +30,18 @@ class GameGraphics(Game):
         self.acc = 0.0
         self.steer = 0.0
         
-    def tick(self):
+    def tick(self, dt=None):
         """
         Update the game state
+        
+        Parameters:
+            dt: time step : default=None (use the internal clock)
         """
         # Update the clock
-        self.dt = self.clock.tick(60) / 1000.0
+        if dt is None:
+            self.dt = self.clock.tick(60) / 1000.0
+        else:
+            self.dt = dt
         
     def key_inputs(self):
         """
