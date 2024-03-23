@@ -126,9 +126,8 @@ class PlayerCamera:
         for i in range(grid_min_i[0], grid_max_i[0]):
             for j in range(grid_min_i[1], grid_max_i[1]):
                 if i >= 0 and i < self.grid.GRID_SIZE and j >= 0 and j < self.grid.GRID_SIZE:
-                    is_in_red_cells = (i, j) in self.grid.red_cells
-                    color = "blue" if is_in_red_cells else "black"
-                    if self.grid.grid[i, j] != 0 and not is_in_red_cells:
+                    color = "black"
+                    if self.grid.grid[i, j] != 0:
                         color = "white"
                     x0 = i / self.grid.GRID_SIZE
                     y0 = j / self.grid.GRID_SIZE

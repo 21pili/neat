@@ -23,7 +23,7 @@ class Grid:
                 r, g, b = 0, 0, 0
                 for x in range(i * im.width // grid_size, (i + 1) * im.width // grid_size):
                     for y in range(j * im.height // grid_size, (j + 1) * im.height // grid_size):
-                        (r_, g_, b_, _) = pixels[x, y]
+                        (r_, g_, b_) = pixels[x, y]
                         r += r_
                         g += g_
                         b += b_

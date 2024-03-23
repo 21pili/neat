@@ -90,15 +90,15 @@ def eval_genomes(genomes, current_config):
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = True
-    LOAD_CHECKPOINT = True
+    GAME_GRAPHICS = False
+    LOAD_CHECKPOINT = False
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen9/id108-fit2.0108782356873367'
+    CHECKPOINT_FILE = 'checkpoints/gen10/id82-fit3.6961956705642365'
     
     # Simulation parameters
-    GENERATIONS = 10        # Total number of generations
+    GENERATIONS = 100       # Total number of generations
     PLAYER_MAX_TIME = 100.0 # Maximum lifetime of a player simulation
     PLAYER_RAY_COUNT = 5    # Number of rays to cast from the player
     DT = 0.01               # Time step for the simulation

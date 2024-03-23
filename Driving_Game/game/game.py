@@ -16,7 +16,7 @@ class Game:
         
         # Initialize game state
         self.grid = grid
-        self.player = Player((0.5, 0.5))
+        self.player = Player((0.468, 0.21))
         
     def update(self, acc, steer):
         """
