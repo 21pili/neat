@@ -7,10 +7,10 @@ from multiprocessing import Pool
 
 def map_outputs(output, dt, player):
     """
-    Map the output from the NEAT network to the acceleration and steering values (between -1 and 1)
+    Map the output from the NEAT network to the acceleration and steering values
     
     Args:
-        output: output values from the NEAT network : size = 4 (accelerate, brake, left, right)
+        output: output values from the NEAT network : size = 4 (accelerate, acceleration value, brake, steer)
         dt: time step for the simulation
     """
     # Neuron 0: Accelerate or not
