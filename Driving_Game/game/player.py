@@ -14,13 +14,13 @@ class Player:
         self.rot = 0
         
         # Physical car performance
-        self.acc_mult = 0.04
-        self.steer_mult = 0.8
-        self.brake_acc = 55.0
+        self.acc_mult = 0.005
+        self.steer_mult = 0.005
+        self.brake_acc = 30.0
         
         # Vision related
         self.fov = np.deg2rad(45)
-        self.view_distance = 0.1
+        self.view_distance = 0.2
         self.wall_dx = 0.01
         
         # Friction
@@ -31,9 +31,9 @@ class Player:
         self.time = 0.0
         
         # Maximum values
-        self.max_vel = 0.17
+        self.max_vel = 0.5
         self.max_acc = 1.2
-        self.max_steer = np.deg2rad(40) # Around 40 degrees for usual cars
+        self.max_steer = 0.4
         
         # Car dimensions
         self.width = 0.01
@@ -49,10 +49,10 @@ class Player:
             steer: steering angle (float)
         """
         # Compute the maximum steering angle based on the velocity
-        max_steer = self.max_steer - np.abs(self.vel[0]) / self.max_vel * self.max_steer * 0.8
+        max_steer = max(0, self.max_steer - np.abs(self.vel[0]) / self.max_vel * self.max_steer * 0.8)
         
         # Limit the acceleration and steering
-        acc = np.clip(acc * self.acc_mult, -self.max_acc, self.max_acc)
+        acc = np.clip(acc * self.acc_mult, -self.brake_acc, self.max_acc)
         steer = np.clip(steer * self.steer_mult, -max_steer, max_steer)
         
         # Add a bit of friction

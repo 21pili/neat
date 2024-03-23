@@ -5,6 +5,7 @@ from brain.neat import NeatAlgorithm
 from game.game import Game
 from game.grid import Grid
 from multiprocessing import Pool
+import warnings
 
 
 def map_outputs(output, dt, player):
@@ -58,6 +59,10 @@ def run_simulation(args):
         
     # Compute fitness for the players
     fitness_params = game.get_fitness_parameters()
+    
+     # Check if out of time
+    if elapsed_time >= PLAYER_MAX_TIME and fitness_params[0] > 0.1:
+        warnings.warn('Agent out of time')
     return fitness_params[0]
 
 def eval_genomes(genomes, current_config):
@@ -83,19 +88,19 @@ def eval_genomes(genomes, current_config):
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
             
-        # Save every genome
-        os.makedirs('checkpoints/gen{}'.format(neat.population.generation), exist_ok=True)
-        for _, genome in genomes:
-            neat.save_genome('checkpoints/gen{}/id{}-fit{}'.format(neat.population.generation, genome.key, genome.fitness), genome)
+        # Save best genomes
+        os.makedirs('checkpoints/', exist_ok=True)
+        best = np.argmax(fitnesses)
+        neat.save_genome('checkpoints/gen{}-fit{}'.format(neat.population.generation, fitnesses[best]), genomes[best][1])
 
 if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = True
-    LOAD_CHECKPOINT = False
+    LOAD_CHECKPOINT = True
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen10/id82-fit3.6961956705642365'
+    CHECKPOINT_FILE = 'checkpoints/gen8-fit0.4444538558452717'
     
     # Simulation parameters
     GENERATIONS = 100       # Total number of generations
@@ -124,11 +129,18 @@ if __name__ == '__main__':
             # Run the game for the player
             frame_time_store = [0.0] * 10
             frame_time_avg = 1.0
+            last_frame_time = time.time()
             while not game.game_over:
                 frame_time = time.time()
                 
                 # Update the game state
-                game.tick(DT)
+                if not LOAD_CHECKPOINT:
+                    cur_time = time.time()
+                    dt = cur_time - last_frame_time
+                    last_frame_time = cur_time
+                else:
+                    dt = DT
+                game.tick(dt)
                 
                 # Handle window events
                 game.events()
@@ -141,7 +153,7 @@ if __name__ == '__main__':
                     game.update(acc, steer)
                 else:
                     # Compute the iteration count based on the frame time, so that the game runs at DT
-                    it_count = max(int(DT / frame_time_avg), 1) * 5
+                    it_count = max(int(DT / frame_time_avg), 1)
                     
                     # Run the game for the player
                     for it in range(it_count):

@@ -151,8 +151,8 @@ class PlayerCamera:
         )
         pygame.draw.arc(screen, "red", player_rect, -self.player.rot - self.player.fov / 2, -self.player.rot + self.player.fov / 2, 2)
         
-        # Draw 10 rays
-        ray_count = 10
+        # Draw n rays
+        ray_count = 5
         for i in range(ray_count):
             # Compute ray direction
             angle = self.player.rot + (i - ray_count // 2) * self.player.fov / ray_count

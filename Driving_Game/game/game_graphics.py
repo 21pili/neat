@@ -19,8 +19,7 @@ class GameGraphics(Game):
         # Render logic
         pygame.init()
         self.screen = pygame.display.set_mode((1280, 720))
-        self.clock = pygame.time.Clock()
-        self.last_input = time.time()
+        self.last_dt = time.time()
         self.running = True
         self.last_camera_change = 0
         
@@ -39,7 +38,9 @@ class GameGraphics(Game):
         """
         # Update the clock
         if dt is None:
-            self.dt = self.clock.tick(60) / 1000.0
+            dt_now = time.time()
+            self.dt = dt_now - self.last_dt
+            self.last_dt = dt_now
         else:
             self.dt = dt
         
@@ -51,7 +52,6 @@ class GameGraphics(Game):
             acc: acceleration value
             steer: steering value
         """
-        # Return (acc, steer)
         return self.acc, self.steer
         
     def events(self):
@@ -73,23 +73,24 @@ class GameGraphics(Game):
             self.last_camera_change = pygame.time.get_ticks()
             
         # Handle keyboard inputs for acceleration
-        time_now = time.time()
-        dt_input = time_now - self.last_input
         if keys[pygame.K_z]:
-            self.acc += 1.0 * dt_input
+            self.acc += 1.0
         elif keys[pygame.K_s]:
-            self.acc = -self.player.brake_acc * dt_input
+            self.acc = -self.player.brake_acc
         else:
             self.acc = 0.0
         
         # Handle keyboard inputs for steering
         if keys[pygame.K_d]:
-            self.steer += 1.0 * dt_input
-        elif keys[pygame.K_q]:
-            self.steer -= 1.0 * dt_input
-        else:
+            if np.sign(self.steer) == -1:
+                self.steer = 0.0
+            self.steer += 1.0
+        if keys[pygame.K_q]:
+            if np.sign(self.steer) == 1:
+                self.steer = 0.0
+            self.steer -= 1.0
+        if not keys[pygame.K_d] and not keys[pygame.K_q]:
             self.steer = 0.0
-        self.last_input = time_now
                 
         # Handle keyboard inputs for the camera
         self.camera.input(self.dt)
@@ -107,13 +108,13 @@ class GameGraphics(Game):
         # Display debug information
         self.display.clear()
         camera_name = "Map" if isinstance(self.camera, MapCamera) else "Player"
-        self.display.display(self.screen, "LEFT", format("FPS: {:.2f}".format(self.clock.get_fps())))
         self.display.display(self.screen, "LEFT", format("Player infos:".format(*self.player.pos)))
         self.display.display(self.screen, "LEFT", format(" - Position: ({:.2f}, {:.2f})".format(*self.player.pos)))
         self.display.display(self.screen, "LEFT", format(" - Velocity: ({:.2f}, {:.2f})".format(*self.player.vel)))
         self.display.display(self.screen, "LEFT", format(" - Rotation: {:.2f}".format(self.player.rot)))
         self.display.display(self.screen, "LEFT", format(" - Acceleration: {:.2f}".format(np.clip(self.acc, -self.player.max_acc, self.player.max_acc))))
         self.display.display(self.screen, "LEFT", format(" - Steering: {:.2f}".format(np.clip(self.steer, -self.player.max_steer, self.player.max_steer))))
+        self.display.display(self.screen, "LEFT", format(" - Distance: {:.2f}".format(self.player.distance)))
         self.display.display(self.screen, "LEFT", format("Camera: {}".format(camera_name)))
         
         self.display.display(self.screen, "RIGHT", format("Z/S: Accelerate/Brake"))
