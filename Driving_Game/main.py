@@ -25,6 +25,7 @@ def map_outputs(output, dt, player):
     # Neuron 3: Steer value between -1 and 1 (from left to right)
     steer = output[3] * 2 - 1
     
+    # Map the values to the player limits
     acc = dt * (acc * 2.0 * player.max_acc - player.max_acc) / player.acc_mult
     steer = dt * (steer * 2.0 * player.max_steer - player.max_steer) / player.steer_mult
     
@@ -85,8 +86,13 @@ def eval_genomes(genomes, current_config):
 
 
 if __name__ == '__main__':
-    # Run with graphics
-    GAME_GRAPHICS = False
+    # Configuration
+    GAME_GRAPHICS = True
+    LOAD_CHECKPOINT = True
+    
+    # File paths
+    CONFIG_FILE = 'brain/config.txt'
+    CHECKPOINT_FILE = 'checkpoints/best'
     
     # Simulation parameters
     GENERATIONS = 10        # Total number of generations
@@ -100,18 +106,51 @@ if __name__ == '__main__':
         import pygame
         from game.game_graphics import GameGraphics
         
-        # Create the player
-        player = GameGraphics(grid)
+        if LOAD_CHECKPOINT:
+            # Create and run the NEAT algorithm loading from a checkpoint
+            neat = NeatAlgorithm(CONFIG_FILE, CHECKPOINT_FILE)
+        
+        # Create the game with graphics
+        game = GameGraphics(grid)
         
         # Run the game for the player
-        while not player.game_over:
-            player.update()
+        while not game.game_over:
+            # Update the game state
+            game.tick()
+            
+            # Handle window events
+            game.events()
+            
+            if not LOAD_CHECKPOINT:
+                # Get the inputs of the current game state
+                acc, steer = game.key_inputs()
+            else:
+                # Get the inputs of the current game state
+                inputs = game.get_inputs(PLAYER_RAY_COUNT)
+                
+                # Create the network from the genome
+                net = neat.create_network(neat.best)
+                
+                # Get the outputs from the neat network
+                outputs = net.activate(inputs)
+                
+                # Execute the action on the game
+                acc, steer = map_outputs(outputs, game.dt, game.player)
+            
+            # Update the game state
+            game.update(acc, steer)
+            
+            # Display the game
+            game.draw()
     
         # Quit the window
         pygame.quit()
     else:
         # Create and run the NEAT algorithm
-        neat = NeatAlgorithm('brain/config.txt')
-        neat.run(eval_genomes, GENERATIONS)
+        neat = NeatAlgorithm(CONFIG_FILE)
+        winner = neat.run(eval_genomes, GENERATIONS)
+        
+        # Save the best genome
+        neat.save_genome(CHECKPOINT_FILE, winner)
     
     

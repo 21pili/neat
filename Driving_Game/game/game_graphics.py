@@ -30,19 +30,23 @@ class GameGraphics(Game):
         self.acc = 0.0
         self.steer = 0.0
         
-    def update(self):
+    def tick(self):
         """
-        Tick for the game instance
+        Update the game state
         """
-        # Update the game state based on the player inputs
-        super().update(self.acc, self.steer)
-        
-        # Tick for the display loop
-        self.events()
-        self.draw()
-        
         # Update the clock
         self.dt = self.clock.tick(60) / 1000.0
+        
+    def key_inputs(self):
+        """
+        Get the keyboard inputs for the player
+        
+        Returns:
+            acc: acceleration value
+            steer: steering value
+        """
+        # Return (acc, steer)
+        return self.acc, self.steer
         
     def events(self):
         """
