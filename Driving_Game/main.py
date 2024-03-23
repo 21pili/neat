@@ -92,15 +92,93 @@ def eval_genomes(genomes, current_config):
         os.makedirs('checkpoints/', exist_ok=True)
         best = np.argmax(fitnesses)
         neat.save_genome('checkpoints/gen{}-fit{}'.format(neat.population.generation, fitnesses[best]), genomes[best][1])
+        
+def visualize(genome, graph_viz_path=None):
+    """
+    Receives a genome and draws a neural network with arbitrary topology.
+    
+    Args:
+        genome: (neat.genome.DefaultGenome) Genome to draw
+        graph_viz_path: (str) Path to the graphviz executable
+    """
+    
+    # Check if the graphviz library is installed
+    if graph_viz_path is not None:
+        os.environ["PATH"] += os.pathsep + graph_viz_path
+    # Try to import the graphviz library
+    try:
+        import graphviz
+    except ImportError:
+        warnings.warn('Graphviz library not found')
+        return
+    
+    # Set the node names and colors
+    node_names = {}
+    node_colors = {}
+    node_attrs = {
+        'shape': 'circle',
+        'fontsize': '9',
+        'height': '0.2',
+        'width': '0.2'}
+
+    # Create the graph
+    dot = graphviz.Digraph(format='svg', node_attr=node_attrs)
+
+    # Add the nodes and connections
+    inputs = set()
+    for k in neat.config.genome_config.input_keys:
+        inputs.add(k)
+        name = node_names.get(k, str(k))
+        input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
+        dot.node(name, _attributes=input_attrs)
+
+    # Add the output nodes
+    outputs = set()
+    for k in neat.config.genome_config.output_keys:
+        outputs.add(k)
+        name = node_names.get(k, str(k))
+        node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
+        dot.node(name, _attributes=node_attrs)
+
+    # Add the hidden nodes
+    used_nodes = set(genome.nodes.keys())
+    for n in used_nodes:
+        if n in inputs or n in outputs:
+            continue
+        attrs = {'style': 'filled',
+                'fillcolor': node_colors.get(n, 'white')}
+        dot.node(str(n), _attributes=attrs)
+
+    # Add the connections
+    show_disabled = True
+    for cg in genome.connections.values():
+        if cg.enabled or show_disabled:
+            # if cg.input not in used_nodes or cg.output not in used_nodes:
+            #    continue
+            input, output = cg.key
+            a = node_names.get(input, str(input))
+            b = node_names.get(output, str(output))
+            style = 'solid' if cg.enabled else 'dotted'
+            color = 'green' if cg.weight > 0 else 'red'
+            width = str(0.1 + abs(cg.weight / 5.0))
+            val_weight='%.3f'%(cg.weight)
+            dot.edge(a, b, _attributes={'style': style, 'color': color, 'penwidth': width},label=val_weight)
+
+    # Save the graph
+    try:
+        dot.render('checkpoints/network_view', view=False)
+    except Exception:
+        warnings.warn('Graphviz library not found')
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = True
-    LOAD_CHECKPOINT = True
+    GAME_GRAPHICS = False
+    LOAD_CHECKPOINT = False
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen1-fit0.48330593644882613'
+    CHECKPOINT_FILE = 'checkpoints/gen105-fit0.3985199999997709'
+    GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
     
     # Simulation parameters
     GENERATIONS = 100       # Total number of generations
@@ -126,6 +204,9 @@ if __name__ == '__main__':
             
             # Create the network from the genome
             net = neat.create_network(neat.best)
+            
+            # Visualize the network
+            visualize(neat.best, GRAPH_VIZ_PATH)
         
         while True:
             # Create the game with graphics

@@ -33,8 +33,11 @@ class NeatAlgorithm:
             checkpoint_file = os.path.join(local_dir, checkpoint)
             
             # Load the population from the checkpoint
-            with open(checkpoint_file, 'rb') as f:
-                self.best = pickle.load(f)
+            try:
+                with open(checkpoint_file, 'rb') as f:
+                    self.best = pickle.load(f)
+            except:
+                raise Exception('Could not load checkpoint file. File not found or invalid format.')
         
         
     def run(self, fitness_function, generations):
