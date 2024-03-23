@@ -103,7 +103,7 @@ class PlayerCamera:
         """
         self.grid = grid
         self.player = player
-        self.ZOOM = 10.0
+        self.ZOOM = 8.0
         self.player_size = 0.05
         
     def draw(self, screen):
