@@ -96,11 +96,11 @@ def eval_genomes(genomes, current_config):
 if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = True
-    LOAD_CHECKPOINT = False
+    LOAD_CHECKPOINT = True
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen8-fit0.4444538558452717'
+    CHECKPOINT_FILE = 'checkpoints/gen1-fit0.48330593644882613'
     
     # Simulation parameters
     GENERATIONS = 100       # Total number of generations

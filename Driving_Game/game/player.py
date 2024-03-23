@@ -95,7 +95,7 @@ class Player:
     
     def get_inputs(self, grid, ray_count):
         """
-        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot)
+        Get the inputs for the NEAT network as a tuple (vel_x, ray_distance_1, ..., ray_distance_n)
         
         Args:
             grid: the grid with the map
@@ -121,4 +121,4 @@ class Player:
             distances[i] = distance
         
         # Return the inputs
-        return (self.vel[0], self.vel[1], self.rot, *distances)
+        return (self.vel[0], *distances)

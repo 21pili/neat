@@ -91,7 +91,7 @@ class Game:
     
     def get_inputs(self, ray_count):
         """
-        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot, ray_distance_1, ..., ray_distance_n)
+        Get the inputs for the NEAT network as a tuple (vel_x, ray_distance_1, ..., ray_distance_n)
         
         Args:
             ray_count: number of rays to cast (uniformly distributed in the player's field of view)
