@@ -95,7 +95,7 @@ def eval_genomes(genomes, current_config):
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = True
+    GAME_GRAPHICS = False
     LOAD_CHECKPOINT = True
     
     # File paths
