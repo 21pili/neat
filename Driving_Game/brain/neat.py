@@ -24,7 +24,7 @@ class NeatAlgorithm:
         self.population = neat.Population(self.config)
         self.population.add_reporter(neat.StdOutReporter(True)) # Set to False to disable output
         self.population.add_reporter(neat.StatisticsReporter()) # Enable statistics
-        # self.population.add_reporter(neat.Checkpointer(5)) # Save the population every 5 generations
+        self.population.add_reporter(neat.Checkpointer(1, filename_prefix='checkpoints/checkpoint-')) # Save the population every 5 generations
         
         
     def run(self, fitness_function, generations):

@@ -5,7 +5,7 @@ from game.grid import Grid
 from multiprocessing import Pool
 
 
-def map_outputs(output, dt):
+def map_outputs(output, dt, player):
     """
     Map the output from the NEAT network to the acceleration and steering values (between -1 and 1)
     
@@ -13,12 +13,22 @@ def map_outputs(output, dt):
         output: output values from the NEAT network : size = 4 (accelerate, brake, left, right)
         dt: time step for the simulation
     """
-    acc = output[0] * 2 - 1
-    steer = output[1] * 2 - 1
-    if output[2] < 0.5:
-        acc = 0
+    # Neuron 0: Accelerate or not
+    # Neuron 1: Value of acceleration between 0 and 1
+    # Neuron 2: Brake or not
+    acc = 0
+    if output[0] >= 0.5:
+        acc += output[1]
+    if output[2] >= 0.5:
+        acc -= player.brake_acc
     
-    return dt * acc, dt * steer
+    # Neuron 3: Steer value between -1 and 1 (from left to right)
+    steer = output[3] * 2 - 1
+    
+    acc = dt * (acc * 2.0 * player.max_acc - player.max_acc) / player.acc_mult
+    steer = dt * (steer * 2.0 * player.max_steer - player.max_steer) / player.steer_mult
+    
+    return acc, steer
 
 def run_simulation(args):
     """
@@ -40,8 +50,7 @@ def run_simulation(args):
         outputs = network.activate(inputs)
         
         # Execute the action on the game
-        acc, steer = map_outputs(outputs, game.dt)
-        print(outputs, acc, steer)
+        acc, steer = map_outputs(outputs, game.dt, game.player)
         game.update(acc, steer)
         
         # Update the elapsed time
@@ -66,7 +75,6 @@ def eval_genomes(genomes, current_config):
         # Create the game instances and the networks
         games = [Game(grid) for _ in range(len(genomes))]
         neat_networks = [neat.create_network(genome) for _, genome in genomes]
-        
         # Evaluate the fitness of each genome
         args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
         fitnesses = pool.map(run_simulation, args)
