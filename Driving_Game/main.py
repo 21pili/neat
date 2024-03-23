@@ -172,12 +172,12 @@ def visualize(genome, graph_viz_path=None):
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = False
+    GAME_GRAPHICS = True
     LOAD_CHECKPOINT = False
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen105-fit0.3985199999997709'
+    CHECKPOINT_FILE = 'checkpoints/gen94-fit44.60852186472184'
     GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
     
     # Simulation parameters
@@ -187,12 +187,12 @@ if __name__ == '__main__':
     DT = 0.01               # Time step for the simulation
     
     # Load the yoshi circuit
-    # PLAYER_POS = (0.5, 0.208)
-    # grid = Grid(250, 'circuit_yoshi.png')
+    PLAYER_POS = (0.5, 0.208)
+    grid = Grid(250, 'circuit_yoshi.png')
     
     # Load the paillon circuit
-    PLAYER_POS = (0.468, 0.21)
-    grid = Grid(250, 'circuit_paillon.png')
+    # PLAYER_POS = (0.468, 0.21)
+    # grid = Grid(250, 'circuit_paillon.png')
 
     if GAME_GRAPHICS:
         import pygame
