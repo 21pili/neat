@@ -90,7 +90,7 @@ def eval_genomes(genomes, current_config):
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = False
+    GAME_GRAPHICS = True
     LOAD_CHECKPOINT = False
     
     # File paths
@@ -136,6 +136,9 @@ if __name__ == '__main__':
                 if not LOAD_CHECKPOINT:
                     # Get the inputs of the current game state
                     acc, steer = game.key_inputs()
+                    
+                    # Update the game state
+                    game.update(acc, steer)
                 else:
                     # Compute the iteration count based on the frame time, so that the game runs at DT
                     it_count = max(int(DT / frame_time_avg), 1) * 5
