@@ -20,15 +20,12 @@ def map_outputs(output, dt, player):
     acc = 0
     if output[0] >= 0.5:
         acc += output[1]
+    acc = (acc * 2.0 * player.max_acc - player.max_acc) / player.acc_mult
     if output[2] >= 0.5:
         acc -= player.brake_acc
     
-    # Neuron 3: Steer value between -1 and 1 (from left to right)
-    steer = output[3] * 2 - 1
-    
-    # Map the values to the player limits
-    acc = dt * (acc * 2.0 * player.max_acc - player.max_acc) / player.acc_mult
-    steer = dt * (steer * 2.0 * player.max_steer - player.max_steer) / player.steer_mult
+    # Neuron 3: Steer value
+    steer = (output[3] * 2.0 * player.max_steer - player.max_steer) / player.steer_mult
     
     return acc, steer
 
@@ -83,7 +80,7 @@ def eval_genomes(genomes, current_config):
         
         # Set the fitness of each genome
         for i, (_, genome) in enumerate(genomes):
-            genome.fitness = fitnesses[i]
+            genome.fitness = fitnesses[i] * 10.0
 
 
 if __name__ == '__main__':
@@ -98,7 +95,7 @@ if __name__ == '__main__':
     # Simulation parameters
     GENERATIONS = 10        # Total number of generations
     PLAYER_MAX_TIME = 100.0 # Maximum lifetime of a player simulation
-    PLAYER_RAY_COUNT = 10   # Number of rays to cast from the player
+    PLAYER_RAY_COUNT = 5    # Number of rays to cast from the player
     DT = 0.01               # Time step for the simulation
     
     # Load the circuit

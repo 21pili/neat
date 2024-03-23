@@ -121,4 +121,4 @@ class Player:
             distances[i] = distance
         
         # Return the inputs
-        return (self.vel[0], self.vel[1], self.acc, self.steer, self.rot, *distances)
+        return (self.vel[0], self.vel[1], self.rot, *distances)
