@@ -1,3 +1,4 @@
+import os
 import time
 import numpy as np
 from brain.neat import NeatAlgorithm
@@ -81,7 +82,11 @@ def eval_genomes(genomes, current_config):
         # Set the fitness of each genome
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
-
+            
+        # Save every genome
+        os.makedirs('checkpoints/gen{}'.format(neat.population.generation), exist_ok=True)
+        for _, genome in genomes:
+            neat.save_genome('checkpoints/gen{}/id{}-fit{}'.format(neat.population.generation, genome.key, genome.fitness), genome)
 
 if __name__ == '__main__':
     # Configuration
@@ -90,7 +95,7 @@ if __name__ == '__main__':
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/best'
+    CHECKPOINT_FILE = 'checkpoints/gen9/id108-fit2.0108782356873367'
     
     # Simulation parameters
     GENERATIONS = 10        # Total number of generations
@@ -166,9 +171,6 @@ if __name__ == '__main__':
     else:
         # Create and run the NEAT algorithm
         neat = NeatAlgorithm(CONFIG_FILE)
-        winner = neat.run(eval_genomes, GENERATIONS)
-        
-        # Save the best genome
-        neat.save_genome(CHECKPOINT_FILE, winner)
+        neat.run(eval_genomes, GENERATIONS)
     
     
