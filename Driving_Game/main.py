@@ -13,9 +13,12 @@ def map_outputs(output, dt):
         output: output values from the NEAT network : size = 4 (accelerate, brake, left, right)
         dt: time step for the simulation
     """
-    acc = dt * (np.exp(output[0]) - np.exp(output[1])) / (np.exp(output[0]) + np.exp(output[1]))
-    steer = dt * (np.exp(output[2]) - np.exp(output[3])) / (np.exp(output[2]) + np.exp(output[3]))
-    return acc, steer
+    acc = np.exp(output[0]) * 2 - 1
+    steer = np.exp(output[1]) * 2 - 1
+    if -0.5 < acc < 0.5:
+        acc = 0
+    
+    return dt * acc, dt * steer
 
 def run_simulation(args):
     """
@@ -38,6 +41,7 @@ def run_simulation(args):
         
         # Execute the action on the game
         acc, steer = map_outputs(outputs, game.dt)
+        print(outputs, acc, steer)
         game.update(acc, steer)
         
         # Update the elapsed time
@@ -70,9 +74,6 @@ def eval_genomes(genomes, current_config):
         # Set the fitness of each genome
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i]
-        
-        # Mutations, speciation, crossover, etc.
-        # TODO
 
 
 if __name__ == '__main__':
