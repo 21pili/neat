@@ -2,12 +2,13 @@ import numpy as np
 from game.player import Player
 
 class Game:
-    def __init__(self, grid, dt=0.01):
+    def __init__(self, grid, player_pos, dt=0.01):
         """
         Initialize a game instance without graphics
         
         Args:
             grid: the grid instance
+            player_pos: player initial position
             dt: time step
         """
         # Game current status
@@ -16,7 +17,7 @@ class Game:
         
         # Initialize game state
         self.grid = grid
-        self.player = Player((0.468, 0.21))
+        self.player = Player(player_pos)
         
     def update(self, acc, steer):
         """

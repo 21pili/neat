@@ -6,15 +6,16 @@ from game.game import Game
 import numpy as np
 
 class GameGraphics(Game):
-    def __init__(self, grid):
+    def __init__(self, grid, player_pos):
         """
         Initialize a game instance with graphics
         
         Args:
             grid: the grid instance
+            player_pos: player initial position
         """
         # Initialize parent class
-        super().__init__(grid, 0)
+        super().__init__(grid, player_pos, 0)
         
         # Render logic
         pygame.init()

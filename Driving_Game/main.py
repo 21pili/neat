@@ -78,7 +78,7 @@ def eval_genomes(genomes, current_config):
     # Run each genome
     with Pool() as pool:
         # Create the game instances and the networks
-        games = [Game(grid, DT) for _ in range(len(genomes))]
+        games = [Game(grid, PLAYER_POS, DT) for _ in range(len(genomes))]
         neat_networks = [neat.create_network(genome) for _, genome in genomes]
         # Evaluate the fitness of each genome
         args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
@@ -95,8 +95,8 @@ def eval_genomes(genomes, current_config):
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = False
-    LOAD_CHECKPOINT = True
+    GAME_GRAPHICS = True
+    LOAD_CHECKPOINT = False
     
     # File paths
     CONFIG_FILE = 'brain/config.txt'
@@ -108,8 +108,13 @@ if __name__ == '__main__':
     PLAYER_RAY_COUNT = 5    # Number of rays to cast from the player
     DT = 0.01               # Time step for the simulation
     
-    # Load the circuit
-    grid = Grid(250, 'circuit.png')
+    # Load the yoshi circuit
+    # PLAYER_POS = (0.5, 0.208)
+    # grid = Grid(250, 'circuit_yoshi.png')
+    
+    # Load the paillon circuit
+    PLAYER_POS = (0.468, 0.21)
+    grid = Grid(250, 'circuit_paillon.png')
 
     if GAME_GRAPHICS:
         import pygame
@@ -124,7 +129,7 @@ if __name__ == '__main__':
         
         while True:
             # Create the game with graphics
-            game = GameGraphics(grid)
+            game = GameGraphics(grid, PLAYER_POS)
             
             # Run the game for the player
             frame_time_store = [0.0] * 10
