@@ -73,13 +73,18 @@ def eval_genomes(genomes, current_config):
     Args:
         genomes: list of tuples (genome_id, genome_instance) to evaluate
     """
+    global grid, PLAYER_POS, map_name
+    
     # Set the current neat configuration
     neat.config = current_config
+    generation = neat.population.generation
     
+    if np.random.rand() < PROB_CHANGE_MAP:
+        grid, PLAYER_POS, map_name = load_map(MAP_FOLDER)
+
     # Run each genome
     with Pool() as pool:
         # Create the game instances and the networks
-        grid, PLAYER_POS = load_map(MAP_FOLDER)
         games = [Game(grid, PLAYER_POS, DT) for _ in range(len(genomes))]
         neat_networks = [neat.create_network(genome) for _, genome in genomes]
         # Evaluate the fitness of each genome
@@ -90,10 +95,15 @@ def eval_genomes(genomes, current_config):
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
             
-        # Save best genomes
+        # Save best genome
         os.makedirs('checkpoints/', exist_ok=True)
         best = np.argmax(fitnesses)
-        neat.save_genome('checkpoints/gen{}-fit{}'.format(neat.population.generation, fitnesses[best]), genomes[best][1])
+        name_save = 'checkpoints/gen{}-fit{:.3f}-'.format(generation, fitnesses[best]) + map_name[8:]
+        neat.save_genome(name_save, genomes[best][1])
+        
+        
+        
+        
         
 def visualize(genome, graph_viz_path=None):
     """
@@ -173,7 +183,7 @@ def visualize(genome, graph_viz_path=None):
         warnings.warn('Graphviz library not found')
 
 
-def load_map(MAP_FOLDER):
+def load_map(MAP_FOLDER, index=0):
     
     """
     Load the map grid and coordinates of the spawn point
@@ -188,7 +198,8 @@ def load_map(MAP_FOLDER):
     
     if MAP_FOLDER is None:
         # pick a randdom map folder
-        MAP_FOLDER = 'maps/' + np.random.choice(os.listdir('maps/')) + '/'
+        list_maps = os.listdir('maps/')
+        MAP_FOLDER = 'maps/' + np.random.choice(list_maps) + '/'
         
     with open(MAP_FOLDER + 'spawn.csv', 'r') as file:
         reader = csv.reader(file)
@@ -197,17 +208,20 @@ def load_map(MAP_FOLDER):
     
     grid = Grid(250, MAP_FOLDER + 'circuit.png')
     
-    return grid, PLAYER_POS
+    map_name = MAP_FOLDER.split('/')[-2]
+    
+    return grid, PLAYER_POS, map_name
         
 
 
 if __name__ == '__main__':
     # Configuration
-    GAME_GRAPHICS = True
+    GAME_GRAPHICS = False
     LOAD_CHECKPOINT = False
     
     # File paths
     MAP_FOLDER = None #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
+    PROB_CHANGE_MAP = 0.2
     CONFIG_FILE = 'brain/config.txt'
     CHECKPOINT_FILE = 'checkpoints/gen39-fit1.2614408462209652'
     GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
@@ -219,8 +233,7 @@ if __name__ == '__main__':
     DT = 0.01               # Time step for the simulation
     
     # Load the circuit
-    
-    grid, PLAYER_POS = load_map(MAP_FOLDER)
+    grid, PLAYER_POS, map_name = load_map(MAP_FOLDER)
 
     if GAME_GRAPHICS:
         import pygame
