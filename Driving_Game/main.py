@@ -79,6 +79,7 @@ def eval_genomes(genomes, current_config):
     # Run each genome
     with Pool() as pool:
         # Create the game instances and the networks
+        grid, PLAYER_POS = load_map(MAP_FOLDER)
         games = [Game(grid, PLAYER_POS, DT) for _ in range(len(genomes))]
         neat_networks = [neat.create_network(genome) for _, genome in genomes]
         # Evaluate the fitness of each genome
@@ -171,15 +172,44 @@ def visualize(genome, graph_viz_path=None):
     except Exception:
         warnings.warn('Graphviz library not found')
 
+
+def load_map(MAP_FOLDER):
+    
+    """
+    Load the map grid and coordinates of the spawn point
+    
+    args:
+        MAP_FOLDER: (str) Path to the map folder, None for mixed maps during training
+        
+    return:
+        grid: (array) Grid of the map
+        PLAYER_POS: (tuple) Coordinates of the spawn point
+    """
+    
+    if MAP_FOLDER is None:
+        # pick a randdom map folder
+        MAP_FOLDER = 'maps/' + np.random.choice(os.listdir('maps/')) + '/'
+        
+    with open(MAP_FOLDER + 'spawn.csv', 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            PLAYER_POS = (float(row[0]), float(row[1]))
+    
+    grid = Grid(250, MAP_FOLDER + 'circuit.png')
+    
+    return grid, PLAYER_POS
+        
+
+
 if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = True
     LOAD_CHECKPOINT = False
     
     # File paths
-    MAP_FOLDER = 'maps/circuit_paillon/'
+    MAP_FOLDER = None #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
     CONFIG_FILE = 'brain/config.txt'
-    CHECKPOINT_FILE = 'checkpoints/gen94-fit44.60852186472184'
+    CHECKPOINT_FILE = 'checkpoints/gen39-fit1.2614408462209652'
     GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
     
     # Simulation parameters
@@ -189,12 +219,8 @@ if __name__ == '__main__':
     DT = 0.01               # Time step for the simulation
     
     # Load the circuit
-    with open(MAP_FOLDER + 'spawn.csv', 'r') as file:
-        reader = csv.reader(file)
-        for row in reader:
-            PLAYER_POS = (float(row[0]), float(row[1]))
     
-    grid = Grid(250, MAP_FOLDER + 'circuit.png')
+    grid, PLAYER_POS = load_map(MAP_FOLDER)
 
     if GAME_GRAPHICS:
         import pygame
