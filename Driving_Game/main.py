@@ -6,6 +6,7 @@ from game.game import Game
 from game.grid import Grid
 from multiprocessing import Pool
 import warnings
+import csv
 
 
 def map_outputs(output, dt, player):
@@ -176,6 +177,7 @@ if __name__ == '__main__':
     LOAD_CHECKPOINT = False
     
     # File paths
+    MAP_FOLDER = 'maps/circuit_paillon/'
     CONFIG_FILE = 'brain/config.txt'
     CHECKPOINT_FILE = 'checkpoints/gen94-fit44.60852186472184'
     GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
@@ -186,13 +188,13 @@ if __name__ == '__main__':
     PLAYER_RAY_COUNT = 5    # Number of rays to cast from the player
     DT = 0.01               # Time step for the simulation
     
-    # Load the yoshi circuit
-    PLAYER_POS = (0.5, 0.208)
-    grid = Grid(250, 'circuit_yoshi.png')
+    # Load the circuit
+    with open(MAP_FOLDER + 'spawn.csv', 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            PLAYER_POS = (float(row[0]), float(row[1]))
     
-    # Load the paillon circuit
-    # PLAYER_POS = (0.468, 0.21)
-    # grid = Grid(250, 'circuit_paillon.png')
+    grid = Grid(250, MAP_FOLDER + 'circuit.png')
 
     if GAME_GRAPHICS:
         import pygame
