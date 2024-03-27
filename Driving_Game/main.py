@@ -106,18 +106,18 @@ def eval_genomes(genomes, current_config):
         save_species_statistics(neat.population.species.species, generation)
         
         # save all genomes
-        gen_folder = SAVING_FOLDER + 'gen{}'.format(generation)  + map_name[8:] + '/'
-        os.makedirs(gen_folder, exist_ok=True)
-        for i, (genome_id, genome) in enumerate(genomes):
-            neat.save_genome(gen_folder + 'id{}-fit{:.3f}'.format(generation, genome_id, genome.fitness), genome)
-                
-        # # Save best genome
-        # os.makedirs(SAVING_FOLDER, exist_ok=True)
-        # best = np.argmax(fitnesses)
-        # name_save = SAVING_FOLDER + 'gen{}-fit{:.3f}-'.format(generation, fitnesses[best]) + map_name[8:]
-        # neat.save_genome(name_save, genomes[best][1])
+        if SAVE_BEST_GENOME_ONLY:
+            os.makedirs(SAVING_FOLDER, exist_ok=True)
+            best = np.argmax(fitnesses)
+            name_save = SAVING_FOLDER + 'gen{}-fit{:.3f}-'.format(generation, genome.fitness) + map_name[8:]
+            neat.save_genome(name_save, genomes[best][1])
+        else:
+            gen_folder = SAVING_FOLDER + 'gen{}'.format(generation)  + map_name[8:] + '/'
+            os.makedirs(gen_folder, exist_ok=True)
+            for i, (genome_id, genome) in enumerate(genomes):
+                neat.save_genome(gen_folder + 'id{}-fit{:.3f}'.format(generation, genome_id, genome.fitness), genome)
         
-        # Correct the fitness of each genome to the training run value
+        # Correct the fitness of each genome to the training run value for training
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
 
@@ -254,6 +254,7 @@ if __name__ == '__main__':
     GAME_GRAPHICS = False
     LOAD_CHECKPOINT = False
     BENCHMARK_PAILLON = True
+    SAVE_BEST_GENOME_ONLY = False
     
     # File paths
     SAVING_FOLDER = 'checkpoints/test/'
