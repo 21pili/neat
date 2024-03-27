@@ -66,20 +66,34 @@ def plot_fitness_diff_species_from_csv(title):
 	main_folder = 'checkpoints\\' + title +'\\'
 
 	# load the csv file
-	data = np.loadtxt(main_folder + 'fitness.csv', delimiter=',')
+	data = np.loadtxt(main_folder + 'species.csv', delimiter=',')
 	gens = data[:, 0]
 	species = data[:, 1]
 	agents = data[:, 2]
 	fitness = data[:, 3]
  
 	# plot the fitness of each species
-	for i in np.unique(species):
-		inds = np.where(species == i)[0]
-		plt.scatter(gens[inds], fitness[inds], label='species ' + str(i), alpha=0.8, linewidth=2)
+	for s in np.unique(species):
+		inds1 = np.where(species == s)[0]
+		gs, max_fits = [], []
+		for g in np.unique(gens):
+			inds2 = np.where(gens == g)[0]
+			inds = np.intersect1d(inds1, inds2)
+			if len(inds) == 0:
+				continue
+			gs.append(g)
+			max_fits.append(np.max(fitness[inds]))
+   
+		# sort the lists by generation number
+		inds = np.argsort(gs)
+		gs = np.array(gs)[inds]
+		max_fits = np.array(max_fits)[inds]
+		plt.plot(gs, max_fits, label='specie ' + str(int(s)), alpha=0.8, linewidth=2, color=my_color_func(int(s)))
 
 	plt.xlabel('Generation')
 	plt.ylabel('Fitness')
-	plt.yscale('log')
 	plt.legend()
 	plt.title(title)
 
+plot_fitness_diff_species_from_csv('test')
+plt.show()

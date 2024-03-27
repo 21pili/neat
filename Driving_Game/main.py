@@ -92,11 +92,12 @@ def eval_genomes(genomes, current_config):
         args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
         fitnesses = pool.map(run_simulation, args)
         
-        # Evaluate the fitness on a single map for benchmarking
-        grid_bench, PLAYER_POS_bench, _ = load_map('maps/circuit_paillon/')
-        games_bench = [Game(grid_bench, PLAYER_POS_bench, DT) for _ in range(len(genomes))]
-        args_bench = zip(games_bench, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
-        fitnesses_bench = pool.map(run_simulation, args_bench)
+        if BENCHMARK_PAILLON:
+            # Evaluate the fitness on a single map for benchmarking
+            grid_bench, PLAYER_POS_bench, _ = load_map('maps/circuit_paillon/')
+            games_bench = [Game(grid_bench, PLAYER_POS_bench, DT) for _ in range(len(genomes))]
+            args_bench = zip(games_bench, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
+            fitnesses_bench = pool.map(run_simulation, args_bench)
         
         # Set the fitness of each genome as benchmark value to save
         for i, (_, genome) in enumerate(genomes):
@@ -253,13 +254,13 @@ if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = False
     LOAD_CHECKPOINT = False
-    BENCHMARK_PAILLON = True
+    BENCHMARK_PAILLON = False
     SAVE_BEST_GENOME_ONLY = False
     
     # File paths
     SAVING_FOLDER = 'checkpoints/test/'
-    MAP_FOLDER = None #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
-    PROB_CHANGE_MAP = 0.2
+    MAP_FOLDER = 'maps/circuit_paillon/' #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
+    PROB_CHANGE_MAP = 0.0
     CONFIG_FILE = 'brain/config.txt'
     CHECKPOINT_FILE = 'checkpoints/gen39-fit1.2614408462209652'
     GRAPH_VIZ_PATH = os.path.curdir + '/graphviz/bin/' # Path to the graphviz executable
