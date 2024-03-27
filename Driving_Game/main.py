@@ -99,28 +99,27 @@ def eval_genomes(genomes, current_config):
             args_bench = zip(games_bench, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
             fitnesses_bench = pool.map(run_simulation, args_bench)
         
-        # Set the fitness of each genome as benchmark value to save
-        for i, (_, genome) in enumerate(genomes):
-            genome.fitness = fitnesses_bench[i] * 10.0 if BENCHMARK_PAILLON else fitnesses[i] * 10.0
+        saved_fitnesses = np.array(fitnesses_bench) * 10.0 if BENCHMARK_PAILLON else np.array(fitnesses) * 10.0
         
-        # Save the species statistics as (generation, specie_id, agent_id, fitness) lines in a csv file
-        save_species_statistics(neat.population.species.species, generation)
-        
-        # save all genomes
+        # save genomes
         if SAVE_BEST_GENOME_ONLY:
             os.makedirs(SAVING_FOLDER, exist_ok=True)
-            best = np.argmax(fitnesses)
-            name_save = SAVING_FOLDER + 'gen{}-fit{:.3f}-'.format(generation, genome.fitness) + map_name[8:]
+            best = np.argmax(saved_fitnesses)
+            name_save = SAVING_FOLDER + 'gen{}-fit{:.3f}-'.format(generation, genomes[best][1].fitness) + map_name[8:]
             neat.save_genome(name_save, genomes[best][1])
         else:
             gen_folder = SAVING_FOLDER + 'gen{}-'.format(generation)  + map_name[8:] + '/'
             os.makedirs(gen_folder, exist_ok=True)
             for i, (genome_id, genome) in enumerate(genomes):
-                neat.save_genome(gen_folder + 'id{}-fit{:.3f}'.format(genome_id, genome.fitness), genome)
+                neat.save_genome(gen_folder + 'id{}-fit{:.3f}'.format(genome_id, saved_fitnesses[i]), genome)
         
-        # Correct the fitness of each genome to the training run value for training
+        # Set the fitness of each genome to the training run value for training
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
+        
+        if not BENCHMARK_PAILLON:
+            # Save the species statistics in a csv file
+            save_species_statistics(neat.population.species.species, generation)
 
         
         
