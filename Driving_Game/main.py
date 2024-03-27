@@ -254,12 +254,12 @@ if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = False
     LOAD_CHECKPOINT = False
-    BENCHMARK_PAILLON = False
+    BENCHMARK_PAILLON = True
     SAVE_BEST_GENOME_ONLY = False
     
     # File paths
     SAVING_FOLDER = 'checkpoints/test/'
-    MAP_FOLDER = 'maps/circuit_paillon/' #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
+    MAP_FOLDER = None #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
     PROB_CHANGE_MAP = 0.0
     CONFIG_FILE = 'brain/config.txt'
     CHECKPOINT_FILE = 'checkpoints/gen39-fit1.2614408462209652'
