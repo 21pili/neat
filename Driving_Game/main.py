@@ -5,6 +5,7 @@ from brain.neat import NeatAlgorithm
 from game.game import Game
 from game.grid import Grid
 from multiprocessing import Pool
+from neat.six_util import iteritems
 import warnings
 import csv
 
@@ -91,18 +92,52 @@ def eval_genomes(genomes, current_config):
         args = zip(games, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
         fitnesses = pool.map(run_simulation, args)
         
-        # Set the fitness of each genome
+        # Evaluate the fitness on a single map for benchmarking
+        grid_bench, PLAYER_POS_bench, _ = load_map('maps/circuit_paillon/')
+        games_bench = [Game(grid_bench, PLAYER_POS_bench, DT) for _ in range(len(genomes))]
+        args_bench = zip(games_bench, zip(neat_networks, [(PLAYER_MAX_TIME, PLAYER_RAY_COUNT)] * len(genomes)))
+        fitnesses_bench = pool.map(run_simulation, args_bench)
+        
+        # Set the fitness of each genome as benchmark value to save
+        for i, (_, genome) in enumerate(genomes):
+            genome.fitness = fitnesses_bench[i] * 10.0 if BENCHMARK_PAILLON else fitnesses[i] * 10.0
+        
+        # Save the species statistics as (generation, specie_id, agent_id, fitness) lines in a csv file
+        save_species_statistics(neat.population.species.species, generation)
+        
+        # save all genomes
+        gen_folder = SAVING_FOLDER + 'gen{}'.format(generation)  + map_name[8:] + '/'
+        os.makedirs(gen_folder, exist_ok=True)
+        for i, (genome_id, genome) in enumerate(genomes):
+            neat.save_genome(gen_folder + 'id{}-fit{:.3f}'.format(generation, genome_id, genome.fitness), genome)
+                
+        # # Save best genome
+        # os.makedirs(SAVING_FOLDER, exist_ok=True)
+        # best = np.argmax(fitnesses)
+        # name_save = SAVING_FOLDER + 'gen{}-fit{:.3f}-'.format(generation, fitnesses[best]) + map_name[8:]
+        # neat.save_genome(name_save, genomes[best][1])
+        
+        # Correct the fitness of each genome to the training run value
         for i, (_, genome) in enumerate(genomes):
             genome.fitness = fitnesses[i] * 10.0
-            
-        # Save best genome
-        os.makedirs('checkpoints/', exist_ok=True)
-        best = np.argmax(fitnesses)
-        name_save = 'checkpoints/gen{}-fit{:.3f}-'.format(generation, fitnesses[best]) + map_name[8:]
-        neat.save_genome(name_save, genomes[best][1])
+
         
         
-        
+def save_species_statistics(species, generation):
+    """
+    Save the species statistics in a csv file
+    
+    Args:
+        species: (dict) Species dictionary
+        generation: (int) Current generation
+    """
+    mode = 'w' if generation == 0 else 'a'
+    
+    with open(SAVING_FOLDER +'species.csv', mode, newline='') as file:
+        writer = csv.writer(file)
+        for specie_id, specie in iteritems(species):
+            for agent_id, agent in iteritems(specie.members):
+                writer.writerow([generation, specie_id, agent_id, agent.fitness])
         
         
 def visualize(genome, graph_viz_path=None):
@@ -218,8 +253,10 @@ if __name__ == '__main__':
     # Configuration
     GAME_GRAPHICS = False
     LOAD_CHECKPOINT = False
+    BENCHMARK_PAILLON = True
     
     # File paths
+    SAVING_FOLDER = 'checkpoints/test/'
     MAP_FOLDER = None #'maps/circuit_paillon/' # Path to the map folder, None for mixed maps during training
     PROB_CHANGE_MAP = 0.2
     CONFIG_FILE = 'brain/config.txt'
@@ -234,6 +271,8 @@ if __name__ == '__main__':
     
     # Load the circuit
     grid, PLAYER_POS, map_name = load_map(MAP_FOLDER)
+    # Create the save folder
+    os.makedirs(SAVING_FOLDER, exist_ok=True)
 
     if GAME_GRAPHICS:
         import pygame
