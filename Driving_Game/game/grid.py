@@ -23,10 +23,10 @@ class Grid:
                 r, g, b = 0, 0, 0
                 for x in range(i * im.width // grid_size, (i + 1) * im.width // grid_size):
                     for y in range(j * im.height // grid_size, (j + 1) * im.height // grid_size):
-                        (r_, g_, b_, _) = pixels[x, y]
-                        r += r_
-                        g += g_
-                        b += b_
+                        pixel = pixels[x, y]
+                        r += pixel[0]
+                        g += pixel[1]
+                        b += pixel[2]
                 r, g, b = r // (im.width // grid_size) ** 2, g // (im.width // grid_size) ** 2, b // (im.width // grid_size) ** 2
                 
                 # If the cell is mostly white, it is a wall

@@ -2,12 +2,13 @@ import numpy as np
 from game.player import Player
 
 class Game:
-    def __init__(self, grid, dt=0.01):
+    def __init__(self, grid, player_pos, dt=0.01):
         """
         Initialize a game instance without graphics
         
         Args:
             grid: the grid instance
+            player_pos: player initial position
             dt: time step
         """
         # Game current status
@@ -16,7 +17,7 @@ class Game:
         
         # Initialize game state
         self.grid = grid
-        self.player = Player((0.5, 0.5))
+        self.player = Player(player_pos)
         
     def update(self, acc, steer):
         """
@@ -26,6 +27,10 @@ class Game:
             acc: Acceleration to apply
             steer: Steering angle to apply
         """
+        # Store the acc and steer values
+        self.acc = acc
+        self.steer = steer
+        
         # Update the player position
         self.player.update(self.dt, acc, steer)
             
@@ -86,7 +91,7 @@ class Game:
     
     def get_inputs(self, ray_count):
         """
-        Get the inputs for the NEAT network as a tuple (vel_x, vel_y, acc, steer, rot, ray_distance_1, ..., ray_distance_n)
+        Get the inputs for the NEAT network as a tuple (vel_x, ray_distance_1, ..., ray_distance_n)
         
         Args:
             ray_count: number of rays to cast (uniformly distributed in the player's field of view)

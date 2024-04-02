@@ -51,3 +51,4 @@ docs/_build/
 
 # Checkpoints
 checkpoints/
+graphviz/

@@ -103,7 +103,7 @@ class PlayerCamera:
         """
         self.grid = grid
         self.player = player
-        self.ZOOM = 10.0
+        self.ZOOM = 8.0
         self.player_size = 0.05
         
     def draw(self, screen):
@@ -126,9 +126,8 @@ class PlayerCamera:
         for i in range(grid_min_i[0], grid_max_i[0]):
             for j in range(grid_min_i[1], grid_max_i[1]):
                 if i >= 0 and i < self.grid.GRID_SIZE and j >= 0 and j < self.grid.GRID_SIZE:
-                    is_in_red_cells = (i, j) in self.grid.red_cells
-                    color = "blue" if is_in_red_cells else "black"
-                    if self.grid.grid[i, j] != 0 and not is_in_red_cells:
+                    color = "black"
+                    if self.grid.grid[i, j] != 0:
                         color = "white"
                     x0 = i / self.grid.GRID_SIZE
                     y0 = j / self.grid.GRID_SIZE
@@ -152,8 +151,8 @@ class PlayerCamera:
         )
         pygame.draw.arc(screen, "red", player_rect, -self.player.rot - self.player.fov / 2, -self.player.rot + self.player.fov / 2, 2)
         
-        # Draw 10 rays
-        ray_count = 10
+        # Draw n rays
+        ray_count = 5
         for i in range(ray_count):
             # Compute ray direction
             angle = self.player.rot + (i - ray_count // 2) * self.player.fov / ray_count
