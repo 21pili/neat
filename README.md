@@ -1,4 +1,4 @@
-# Introduction
+# NeuroEvolution of Augmenting Topologies Applied to Simple Games.
 
 This project aims to study the NEAT (NeuroEvolution of Augmenting Topologies) algorithm on two different games, the Pong game and a driving game. We divided both implementations in two separate folders. Each folder contains a requirements.txt and a README.md file providing guidelines to run the projects.
 
