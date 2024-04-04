@@ -14,7 +14,7 @@ pip install -r requirements.txt
 ```
 To change the parameters used by the NEAT algorithm, edit the config.txt file in the brain/ folder.
 
-The code is in the file test_rt_neat.py. Run this python file to run the evolution algorithm and then play against the winner. Good luck !
+The code is in the file `rt_neat.py`. Run this python file to run the evolution algorithm and then play against the winner. Good luck !
 
 The other files are saving files used by the algorithm.
 
